@@ -1,0 +1,33 @@
+name:                haskell-geometric-algebra
+version:             0.0.1
+github:              gribbet/haskell-geometric-algebra
+license:             BSD3
+author:              "Graham Gibbons"
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+executables:
+  haskell-geometric-algebra-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-geometric-algebra
+
+tests:
+  haskell-geometric-algebra-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-geometric-algebra

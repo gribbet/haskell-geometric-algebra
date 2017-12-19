@@ -2,16 +2,12 @@ module Main where
 
 import           GeometricAlgebra
 
-a :: Multivector
-a = fromVector $ Vector 'a'
+-- Fix Multivector Eq
+-- Generic Vectors?
 
-b :: Multivector
+a = fromVector $ Vector 'a'
 b = fromVector $ Vector 'b'
 
-c :: Multivector
-c = fromVector $ Vector 'c'
-
-test = fromString "bac"
 
 main :: IO ()
-main = putStrLn $ "Test: " ++ show test
+main = putStrLn $ "Test: " ++ show (a * b)

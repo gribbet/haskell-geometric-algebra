@@ -2,30 +2,29 @@ module GeometricAlgebra where
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
-type Value = Double
 data Vector = Vector Char deriving (Eq, Ord)
 data Blade = Blade (Set.Set Vector) deriving (Eq, Ord)
-data Multivector = Multivector (Map.Map Blade Value) deriving (Eq)
+data Multivector a = Multivector (Map.Map Blade a) deriving (Eq)
 
 unitBlade :: Blade
 unitBlade = Blade Set.empty
 
-fromValue :: Value -> Multivector
+fromValue :: (Num a) => a -> Multivector a
 fromValue value = fromBladeValue unitBlade value
 
-fromBladeValue :: Blade -> Value -> Multivector
+fromBladeValue :: (Num a) => Blade -> a -> Multivector a
 fromBladeValue blade value = Multivector $ Map.fromList[(blade, value)]
 
-fromBlade :: Blade -> Multivector
+fromBlade :: Blade -> Multivector Int
 fromBlade blade = fromBladeValue blade 1
 
-fromVector :: Vector -> Multivector
+fromVector :: Vector -> Multivector Int
 fromVector x = fromBlade $ Blade $ Set.fromList [x]
 
-fromVectors :: [Vector] -> Multivector
+fromVectors :: [Vector] -> Multivector Int
 fromVectors vectors = foldr (*) 1 $ map fromVector vectors
 
-fromString :: String -> Multivector
+fromString :: String -> Multivector Int
 fromString vectors = fromVectors $ map Vector vectors
 
 instance Show Vector where
@@ -35,10 +34,10 @@ instance Show Blade where
     show (Blade vectors) =
         foldr (++) "" $ map show $ Set.toList vectors
 
-instance Show Multivector where
+instance (Num a, Eq a, Show a) => Show (Multivector a) where
     show (Multivector values) =
         let filtered = filter
-                (\(_, value) -> value /= 0.0)
+                (\(_, value) -> value /= 0)
                 $ Map.toList values
         in case filtered of
             [] -> show "0.0"
@@ -48,7 +47,7 @@ instance Show Multivector where
                     (\(blade, value) -> show value ++ show blade)
                     values'
 
-instance Num Multivector where
+instance (Num a) => Num (Multivector a) where
     (Multivector values) + (Multivector values') =
         Multivector $ Map.fromList $ map
             (\blade -> (blade,

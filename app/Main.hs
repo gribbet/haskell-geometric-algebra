@@ -2,7 +2,6 @@ module Main where
 
 import           GeometricAlgebra
 
--- Fix Multivector Eq
 -- Generic Vectors?
 
 a = fromVector $ Vector 'a'

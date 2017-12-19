@@ -4,7 +4,7 @@ import qualified Data.Set as Set
 
 data Vector = Vector Char deriving (Eq, Ord)
 data Blade = Blade (Set.Set Vector) deriving (Eq, Ord)
-data Multivector a = Multivector (Map.Map Blade a) deriving (Eq)
+data Multivector a = Multivector (Map.Map Blade a)
 
 unitBlade :: Blade
 unitBlade = Blade Set.empty
@@ -92,6 +92,9 @@ instance (Num a) => Num (Multivector a) where
     -- Invalid
     abs x = x
     signum _ = 1
+
+instance (Num a, Eq a, Show a) => Eq (Multivector a) where
+    x == y = (show x) == (show y)
 
 
 

@@ -9,6 +9,11 @@ dependencies:
 
 library:
   source-dirs: src
+  ghc-options:
+    - -Wall
+    - -Werror
+  dependencies: 
+    - containers
 
 executables:
   haskell-geometric-algebra-exe:

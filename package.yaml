@@ -7,13 +7,14 @@ author:              "Graham Gibbons"
 dependencies:
 - base >= 4.7 && < 5
 
+
 library:
   source-dirs: src
   ghc-options:
-    - -Wall
-    - -Werror
+  - -Wall
+  - -Werror
   dependencies: 
-    - containers
+  - containers
 
 executables:
   haskell-geometric-algebra-exe:
@@ -36,3 +37,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - haskell-geometric-algebra
+    - tasty
+    - tasty-hunit

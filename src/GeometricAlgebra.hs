@@ -40,7 +40,7 @@ instance (Num a, Eq a, Show a) => Show (Multivector a) where
                 (\(_, value) -> value /= 0)
                 $ Map.toList values
         in case filtered of
-            [] -> show "0.0"
+            [] -> show (0::Int)
             values' -> foldr1
                 (\x y -> x ++ " + " ++ y)
                 $ map

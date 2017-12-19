@@ -2,39 +2,39 @@ module GeometricAlgebra where
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
-data Vector = Vector Char deriving (Eq, Ord)
-data Blade = Blade (Set.Set Vector) deriving (Eq, Ord)
-data Multivector a = Multivector (Map.Map Blade a)
+data Vector v = Vector v deriving (Eq, Ord)
+data Blade v = Blade (Set.Set (Vector v)) deriving (Eq, Ord)
+data Multivector v x = Multivector (Map.Map (Blade v) x)
 
-unitBlade :: Blade
+unitBlade :: Blade v
 unitBlade = Blade Set.empty
 
-fromValue :: (Num a) => a -> Multivector a
+fromValue :: (Ord v, Num x) => x -> Multivector v x
 fromValue value = fromBladeValue unitBlade value
 
-fromBladeValue :: (Num a) => Blade -> a -> Multivector a
+fromBladeValue :: (Ord v, Num x) => Blade v -> x -> Multivector v x
 fromBladeValue blade value = Multivector $ Map.fromList[(blade, value)]
 
-fromBlade :: Blade -> Multivector Int
+fromBlade :: Ord v => Blade v -> Multivector v Int
 fromBlade blade = fromBladeValue blade 1
 
-fromVector :: Vector -> Multivector Int
+fromVector :: Ord v => Vector v -> Multivector v Int
 fromVector x = fromBlade $ Blade $ Set.fromList [x]
 
-fromVectors :: [Vector] -> Multivector Int
+fromVectors :: Ord v => [Vector v] -> Multivector v Int
 fromVectors vectors = foldr (*) 1 $ map fromVector vectors
 
-fromString :: String -> Multivector Int
+fromString :: String -> Multivector Char Int
 fromString vectors = fromVectors $ map Vector vectors
 
-instance Show Vector where
-    show (Vector x) = [x]
+instance Show v => Show (Vector v) where
+    show (Vector a) = show a
 
-instance Show Blade where
+instance Show v => Show (Blade v) where
     show (Blade vectors) =
         foldr (++) "" $ map show $ Set.toList vectors
 
-instance (Num a, Eq a, Show a) => Show (Multivector a) where
+instance (Show v, Num x, Eq x, Show x) => Show (Multivector v x) where
     show (Multivector values) =
         let filtered = filter
                 (\(_, value) -> value /= 0)
@@ -47,7 +47,7 @@ instance (Num a, Eq a, Show a) => Show (Multivector a) where
                     (\(blade, value) -> show value ++ show blade)
                     values'
 
-instance (Num a) => Num (Multivector a) where
+instance (Ord v, Num x) => Num (Multivector v x) where
     (Multivector values) + (Multivector values') =
         Multivector $ Map.fromList $ map
             (\blade -> (blade,
@@ -56,7 +56,7 @@ instance (Num a) => Num (Multivector a) where
             $ Set.toList $ Set.union (Map.keysSet values) (Map.keysSet values')
 
     (Multivector values) * (Multivector values') =
-        let combine :: [Vector] -> [Vector] -> ([Vector], Bool)
+        let combine :: Ord v => [Vector v] -> [Vector v] -> ([Vector v], Bool)
             combine [] x     = (x, False)
             combine x []     = (x, False)
             combine [x] (y:ys)
@@ -93,8 +93,8 @@ instance (Num a) => Num (Multivector a) where
     abs x = x
     signum _ = 1
 
-instance (Num a, Eq a, Show a) => Eq (Multivector a) where
-    x == y = (show x) == (show y)
+instance (Show v, Num x, Eq x, Show x) => Eq (Multivector v x) where
+    a == b = (show a) == (show b)
 
 
 

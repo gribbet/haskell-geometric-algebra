@@ -2,8 +2,6 @@ module Main where
 
 import           GeometricAlgebra
 
--- Generic Vectors?
-
 a = fromVector $ Vector 'a'
 b = fromVector $ Vector 'b'
 

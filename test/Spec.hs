@@ -13,8 +13,10 @@ main :: IO ()
 main = do
   defaultMain
     $ testGroup "Tests" [
-      testCase "Anticommutivity" $
-        a * b @?= -(b * a)
-    , testCase "Associativity" $
-        a * (b * c )@?= (a * b) * c
+        testCase "Anticommutivity" $
+          a * b @?= -(b * a)
+      , testCase "Associativity" $
+          a * (b * c) @?= (a * b) * c
+      , testCase "Show" $
+          show (a * b * c) @?= "1abc"
     ]

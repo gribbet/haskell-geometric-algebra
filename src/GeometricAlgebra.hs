@@ -15,24 +15,23 @@ fromValue value = fromBladeValue unitBlade value
 fromBladeValue :: (Ord v, Num x) => Blade v -> x -> Multivector v x
 fromBladeValue blade value = Multivector $ Map.fromList[(blade, value)]
 
-fromBlade :: Ord v => Blade v -> Multivector v Int
+fromBlade :: (Ord v, Num x) => Blade v -> Multivector v x
 fromBlade blade = fromBladeValue blade 1
 
-fromVector :: Ord v => Vector v -> Multivector v Int
+fromVector :: (Ord v, Num x) => Vector v -> Multivector v x
 fromVector x = fromBlade $ Blade $ Set.fromList [x]
 
-fromVectors :: Ord v => [Vector v] -> Multivector v Int
+fromVectors :: (Ord v, Num x) => [Vector v] -> Multivector v x
 fromVectors vectors = foldr (*) 1 $ map fromVector vectors
 
-fromString :: String -> Multivector Char Int
+fromString :: (Num x) => String -> Multivector Char x
 fromString vectors = fromVectors $ map Vector vectors
 
-instance Show v => Show (Vector v) where
-    show (Vector a) = show a
-
 instance Show v => Show (Blade v) where
-    show (Blade vectors) =
-        foldr (++) "" $ map show $ Set.toList vectors
+    show (Blade vectors) = filter (\x -> x /= '"')
+        $ show
+        $ map (\(Vector x) -> x)
+        $ Set.toList vectors
 
 instance (Show v, Num x, Eq x, Show x) => Show (Multivector v x) where
     show (Multivector values) =

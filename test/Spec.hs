@@ -5,9 +5,9 @@ import           Test.Tasty.HUnit
 
 import           GeometricAlgebra
 
-a = fromVector $ Vector 'a'
-b = fromVector $ Vector 'b'
-c = fromVector $ Vector 'c'
+a = fromVector 'a'
+b = fromVector 'b'
+c = fromVector 'c'
 
 main :: IO ()
 main = do

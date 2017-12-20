@@ -2,8 +2,8 @@ module Main where
 
 import           GeometricAlgebra
 
-a = fromVector $ Vector 'a'
-b = fromVector $ Vector 'b'
+a = fromVector 'a'
+b = fromVector 'b'
 
 
 main :: IO ()

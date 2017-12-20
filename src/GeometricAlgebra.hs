@@ -2,38 +2,38 @@ module GeometricAlgebra where
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
-data Vector v = Vector v deriving (Eq, Ord)
-data Blade v = Blade (Set.Set (Vector v)) deriving (Eq, Ord)
+class (Ord v, Show v) => Vector v where
+    name :: v -> String
+    name = show
+instance Vector Char where
+    name v = [v]
+data Blade v = Blade (Set.Set v) deriving (Eq, Ord)
 data Multivector v x = Multivector (Map.Map (Blade v) x)
 
 unitBlade :: Blade v
 unitBlade = Blade Set.empty
 
-fromValue :: (Ord v, Num x) => x -> Multivector v x
+fromValue :: (Vector v, Num x) => x -> Multivector v x
 fromValue value = fromBladeValue unitBlade value
 
-fromBladeValue :: (Ord v, Num x) => Blade v -> x -> Multivector v x
+fromBladeValue :: (Vector v, Num x) => Blade v -> x -> Multivector v x
 fromBladeValue blade value = Multivector $ Map.fromList[(blade, value)]
 
-fromBlade :: (Ord v, Num x) => Blade v -> Multivector v x
+fromBlade :: (Vector v, Num x) => Blade v -> Multivector v x
 fromBlade blade = fromBladeValue blade 1
 
-fromVector :: (Ord v, Num x) => Vector v -> Multivector v x
+fromVector :: (Vector v, Num x) => v -> Multivector v x
 fromVector x = fromBlade $ Blade $ Set.fromList [x]
 
-fromVectors :: (Ord v, Num x) => [Vector v] -> Multivector v x
+fromVectors :: (Vector v, Num x) => [v] -> Multivector v x
 fromVectors vectors = foldr (*) 1 $ map fromVector vectors
 
-fromString :: (Num x) => String -> Multivector Char x
-fromString vectors = fromVectors $ map Vector vectors
+instance Vector v => Show (Blade v) where
+    show (Blade vectors) =
+        foldl (++) ""
+            $ map name (Set.toList vectors)
 
-instance Show v => Show (Blade v) where
-    show (Blade vectors) = filter (\x -> x /= '"')
-        $ show
-        $ map (\(Vector x) -> x)
-        $ Set.toList vectors
-
-instance (Show v, Num x, Eq x, Show x) => Show (Multivector v x) where
+instance (Vector v, Num x, Eq x, Show x) => Show (Multivector v x) where
     show (Multivector values) =
         let filtered = filter
                 (\(_, value) -> value /= 0)
@@ -46,16 +46,18 @@ instance (Show v, Num x, Eq x, Show x) => Show (Multivector v x) where
                     (\(blade, value) -> show value ++ show blade)
                     values'
 
-instance (Ord v, Num x) => Num (Multivector v x) where
+instance (Vector v, Num x) => Num (Multivector v x) where
     (Multivector values) + (Multivector values') =
-        Multivector $ Map.fromList $ map
-            (\blade -> (blade,
+        Multivector
+            $ Map.fromList
+            $ map (\blade -> (blade,
                 (Map.findWithDefault 0 blade values) +
                 (Map.findWithDefault 0 blade values')))
-            $ Set.toList $ Set.union (Map.keysSet values) (Map.keysSet values')
+            $ Set.toList
+            $ Set.union (Map.keysSet values) (Map.keysSet values')
 
     (Multivector values) * (Multivector values') =
-        let combine :: Ord v => [Vector v] -> [Vector v] -> ([Vector v], Bool)
+        let combine :: Vector v => [v] -> [v] -> ([v], Bool)
             combine [] x     = (x, False)
             combine x []     = (x, False)
             combine [x] (y:ys)
@@ -92,7 +94,7 @@ instance (Ord v, Num x) => Num (Multivector v x) where
     abs x = x
     signum _ = 1
 
-instance (Show v, Num x, Eq x, Show x) => Eq (Multivector v x) where
+instance (Vector v, Num x, Eq x, Show x) => Eq (Multivector v x) where
     a == b = (show a) == (show b)
 
 

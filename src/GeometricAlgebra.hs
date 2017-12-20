@@ -53,11 +53,12 @@ instance (Vector v, Num x, Eq x, Show x) => Show (Multivector v x) where
             values' ->
                 intercalate " + "
                 $ map
-                    (\(blade, value) -> case (show value, show blade) of
-                        (v, [])   -> v
-                        ("1", b)  -> b
-                        ("-1", b) -> "-" ++ b
-                        (v, b)    -> v ++ b)
+                    (\(blade, value) ->
+                        case (show blade, value) of
+                            ([], x) -> show x
+                            (b, 1)  -> b
+                            (b, -1) -> "-" ++ b
+                            (b, x)  -> b ++ show x)
                     values'
 
 instance (Vector v, Num x) => Num (Multivector v x) where

@@ -1,5 +1,6 @@
 module GeometricAlgebra where
 import           Data.Char
+import           Data.List
 import qualified Data.Map  as Map
 import qualified Data.Set  as Set
 
@@ -40,8 +41,7 @@ reverse (Multivector values) = sum
 
 instance Vector v => Show (Blade v) where
     show (Blade vectors) =
-        foldl (++) ""
-            $ map name (Set.toList vectors)
+        intercalate "" $ map name (Set.toList vectors)
 
 instance (Vector v, Num x, Eq x, Show x) => Show (Multivector v x) where
     show (Multivector values) =
@@ -50,8 +50,8 @@ instance (Vector v, Num x, Eq x, Show x) => Show (Multivector v x) where
                 $ Map.toList values
         in case filtered of
             [] -> show (0::Int)
-            values' -> foldr1
-                (\x y -> x ++ " + " ++ y)
+            values' ->
+                intercalate " + "
                 $ map
                     (\(blade, value) -> case (show value, show blade) of
                         (v, [])   -> v

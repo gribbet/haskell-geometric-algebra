@@ -32,11 +32,11 @@ fromVector x = fromBlade $ Blade $ Set.fromList [x]
 fromVectors :: (Vector v, Num x) => [v] -> Multivector v x
 fromVectors vectors = product $ map fromVector vectors
 
-reverse :: (Vector v, Num x) => Multivector v x -> Multivector v x
-reverse (Multivector values) = sum
+reversion :: (Vector v, Num x) => Multivector v x -> Multivector v x
+reversion (Multivector values) = sum
         $ map
             (\(Blade vectors, value) ->
-                (fromVectors $ Prelude.reverse $ Set.toList vectors) * (fromValue value))
+                (fromVectors $ reverse $ Set.toList vectors) * (fromValue value))
             $ Map.toList values
 
 counit :: (Vector v, Num x) => Multivector v x -> x

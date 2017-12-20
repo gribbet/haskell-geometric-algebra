@@ -39,6 +39,9 @@ reverse (Multivector values) = sum
                 (fromVectors $ Prelude.reverse $ Set.toList vectors) * (fromValue value))
             $ Map.toList values
 
+counit :: (Vector v, Num x) => Multivector v x -> x
+counit (Multivector values) = (Map.findWithDefault 0 unitBlade values)
+
 instance Vector v => Show (Blade v) where
     show (Blade vectors) =
         intercalate "" $ map name (Set.toList vectors)
@@ -58,7 +61,7 @@ instance (Vector v, Num x, Eq x, Show x) => Show (Multivector v x) where
                             ([], x) -> show x
                             (b, 1)  -> b
                             (b, -1) -> "-" ++ b
-                            (b, x)  -> b ++ show x)
+                            (b, x)  -> show x ++ b)
                     values'
 
 instance (Vector v, Num x) => Num (Multivector v x) where

@@ -1,12 +1,15 @@
 module GeometricAlgebra where
-import qualified Data.Map as Map
-import qualified Data.Set as Set
+import           Data.Char
+import qualified Data.Map  as Map
+import qualified Data.Set  as Set
 
-class (Ord v, Show v) => Vector v where
+class Ord v => Vector v where
     name :: v -> String
-    name = show
+    antieuclidean :: v -> Bool
+    antieuclidean _ = False
 instance Vector Char where
     name v = [v]
+    antieuclidean = isUpper
 data Blade v = Blade (Set.Set v) deriving (Eq, Ord)
 data Multivector v x = Multivector (Map.Map (Blade v) x)
 
@@ -26,7 +29,14 @@ fromVector :: (Vector v, Num x) => v -> Multivector v x
 fromVector x = fromBlade $ Blade $ Set.fromList [x]
 
 fromVectors :: (Vector v, Num x) => [v] -> Multivector v x
-fromVectors vectors = foldr (*) 1 $ map fromVector vectors
+fromVectors vectors = product $ map fromVector vectors
+
+reverse :: (Vector v, Num x) => Multivector v x -> Multivector v x
+reverse (Multivector values) = sum
+        $ map
+            (\(Blade vectors, value) ->
+                (fromVectors $ Prelude.reverse $ Set.toList vectors) * (fromValue value))
+            $ Map.toList values
 
 instance Vector v => Show (Blade v) where
     show (Blade vectors) =
@@ -43,7 +53,11 @@ instance (Vector v, Num x, Eq x, Show x) => Show (Multivector v x) where
             values' -> foldr1
                 (\x y -> x ++ " + " ++ y)
                 $ map
-                    (\(blade, value) -> show value ++ show blade)
+                    (\(blade, value) -> case (show value, show blade) of
+                        (v, [])   -> v
+                        ("1", b)  -> b
+                        ("-1", b) -> "-" ++ b
+                        (v, b)    -> v ++ b)
                     values'
 
 instance (Vector v, Num x) => Num (Multivector v x) where
@@ -61,7 +75,7 @@ instance (Vector v, Num x) => Num (Multivector v x) where
             combine [] x     = (x, False)
             combine x []     = (x, False)
             combine [x] (y:ys)
-                | x == y = (ys, False)
+                | x == y = (ys, antieuclidean x)
                 | x < y = (x:y:ys, False)
                 | x > y =
                     let (combined, reversed) = combine [y, x] ys
@@ -74,14 +88,14 @@ instance (Vector v, Num x) => Num (Multivector v x) where
             xor :: Bool -> Bool -> Bool
             xor x y = x && (not y) || (not x) && y
 
-        in foldr (+) 0 $ map
+        in sum $ map
             (\[(Blade vectors, value), (Blade vectors', value')] ->
                 let (combined, reversed) =
                         combine (Set.toList vectors) (Set.toList vectors')
                 in fromBladeValue
                     (Blade $ Set.fromList combined)
                     $ value * value' * (if reversed then -1 else 1))
-            $ sequence [(Map.toList values), (Map.toList values')]
+            $ sequence [Map.toList values, Map.toList values']
 
     negate (Multivector values) =
         Multivector $ Map.fromList $ map
